@@ -29,7 +29,7 @@ AX_COMPARE_VERSION([${ver}],[ge],[4.0.43],
 
 dnl check for SDL2
 
-SDL_VERSION=1.2.0
+SDL_VERSION=2.24.0
 AM_PATH_SDL2($SDL_VERSION,
             :,
             AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
