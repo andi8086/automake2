@@ -2,6 +2,14 @@ AC_INIT([helloworld], [01], [blabla@blabla.de])
 AM_INIT_AUTOMAKE([])
 AC_PROG_CC
 
+
+dnl Configure switches
+AC_ARG_ENABLE(floppy_sound,
+        [AS_HELP_STRING([--enable-floppy-sound], [Enables floppy seek sound (default: enabled)])],
+        [floppy_sound=$enableval],
+        [floppy_sound=yes])
+
+
 dnl Check for mtools
 
 AC_PATH_PROG([MTOOLS], [mtools])
@@ -27,14 +35,20 @@ AM_PATH_SDL2($SDL_VERSION,
             AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!])
 )
 
-AC_CHECK_LIB(SDL2_mixer, Mix_PlayChannel, found_sdl_mixer=yes, found_sdl_mixer=no)
+CFLAGS="$CFLAGS $SDL_CFLAGS"
+LIBS="$LIBS $SDL_LIBS"
 
-if test x"$found_sdl_mixer" == x"no"; then
-        AC_MSG_ERROR([*** Please also install SDL_mixer!])
+if test "$floppy_sound" == "yes"; then
+        AC_CHECK_LIB(SDL2_mixer, Mix_PlayChannel, found_sdl_mixer=yes, found_sdl_mixer=no)
+
+        if test x"$found_sdl_mixer" == x"no"; then
+                AC_MSG_ERROR([*** Please also install SDL_mixer!])
+        fi
+
+        LIBS="$LIBS -lSDL2_mixer"
+        AC_DEFINE([CONFIG_FLOPPY_SOUND], 1, [floppy seek sound enabled])
 fi
 
-CFLAGS="$CFLAGS $SDL_CFLAGS"
-LIBS="$LIBS $SDL_LIBS -lSDL2_mixer"
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile])
